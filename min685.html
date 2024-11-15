@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Attraction Dashboard</title>
+    <!-- Include Select2 CSS and jQuery -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 700px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard {
+            display: none;
+        }
+        .dashboard.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            width: 90%;
+            text-align: left;
+        }
+        select, button {
+            width: 90%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            width: 90%;
+        }
+        .nav-btn {
+            width: 45%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .nav-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .stats-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .stat-box {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Dashboard 1 -->
+        <div id="dashboard1" class="dashboard active">
+            <h2>Tourist Attraction Recommendation</h2>
+            <div class="form-group">
+                <label for="country1">Select Country:</label>
+                <select id="country1" class="country-dropdown" style="width: 100%;"></select>
+            </div>
+            <div class="form-group">
+                <label for="visitMode1">Select Visit Mode:</label>
+                <select id="visitMode1">
+                    <option value="">--Select Mode--</option>
+                    <option value="Business">Business</option>
+                    <option value="Couples">Couples</option>
+                    <option value="Family">Family</option>
+                    <option value="Friends">Friends</option>
+                    <option value="Solo">Solo</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="month1">Select Month:</label>
+                <select id="month1">
+                    <option value="">--Select Month--</option>
+                    <!-- Populate months as needed -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="attractionType1">Select Attraction Type:</label>
+                <select id="attractionType1" disabled>
+                    <option value="">--Select Type--</option>
+                </select>
+            </div>
+            <button id="getButton1" onclick="handleDashboard1Click()">Get Attraction Types</button>
+
+        </div>
+
+
+        <!-- Dashboard 3 -->
+<div id="dashboard3" class="dashboard">
+    <h2>Best Attraction Places</h2>
+    <div class="form-group">
+        <label for="country3">Select Country:</label>
+        <select id="country3" class="country-dropdown" style="width: 100%;"></select>
+    </div>
+    <div class="form-group">
+        <label for="visitMode3">Select Visit Mode:</label>
+        <select id="visitMode3">
+            <option value="">--Select Mode--</option>
+            <option value="Business">Business</option>
+            <option value="Couples">Couples</option>
+            <option value="Family">Family</option>
+            <option value="Friends">Friends</option>
+            <option value="Solo">Solo</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="attractionType3">Select Attraction Type:</label>
+        <select id="attractionType3">
+            <option value="">--Select Type--</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="attractionPlace3">Select Attraction Place:</label>
+        <select id="attractionPlace3" disabled>
+            <option value="">--Select Place--</option>
+        </select>
+    </div>
+    <button id="getButton3" onclick="handleDashboard3Click()">Get Attraction Places</button>
+</div>
+      <!-- Navigation Buttons -->
+        <div class="nav-container">
+            <button class="nav-btn" onclick="prevDashboard()">Previous</button>
+            <button class="nav-btn" onclick="nextDashboard()">Next</button>
+        </div>
+    </div>
+    <script>
+      let currentDashboard = 1;
+
+function updateNavigationButtons() {
+    document.querySelector('.nav-container .nav-btn:first-child').disabled = (currentDashboard === 1);
+    document.querySelector('.nav-container .nav-btn:last-child').disabled = (currentDashboard === 3);
+}
+
+function nextDashboard() {
+    document.getElementById(`dashboard${currentDashboard}`).classList.remove("active");
+    currentDashboard = (currentDashboard === 1) ? 3 : 1;
+    document.getElementById(`dashboard${currentDashboard}`).classList.add("active");
+    updateNavigationButtons();
+}
+
+function prevDashboard() {
+    document.getElementById(`dashboard${currentDashboard}`).classList.remove("active");
+    currentDashboard = (currentDashboard === 3) ? 1 : 3;
+    document.getElementById(`dashboard${currentDashboard}`).classList.add("active");
+    updateNavigationButtons();
+}
+
+$(document).ready(function () {
+    const countries = [
+    { code: "0001", name: "Cameroon" },
+    { code: "0002", name: "Chad" },
+    { code: "0003", name: "Rwanda" },
+    { code: "0004", name: "Ethiopia" },
+    { code: "0005", name: "Kenya" },
+    { code: "0006", name: "Mauritius" },
+    { code: "0007", name: "Seychelles" },
+    { code: "0008", name: "Sudan" },
+    { code: "0009", name: "Tanzania" },
+    { code: "0010", name: "Uganda" },
+    { code: "0011", name: "Zambia" },
+    { code: "0012", name: "Zimbabwe" },
+    { code: "0013", name: "Algeria" },
+    { code: "0014", name: "Egypt" },
+    { code: "0015", name: "Morocco" },
+    { code: "0016", name: "Tunisia" },
+    { code: "0017", name: "Angola" },
+    { code: "0018", name: "Botswana" },
+    { code: "0019", name: "Malawi" },
+    { code: "0020", name: "Mozambique" },
+    { code: "0021", name: "Namibia" },
+    { code: "0022", name: "South Africa" },
+    { code: "0023", name: "Burkina Faso" },
+    { code: "0024", name: "Cape Verde" },
+    { code: "0025", name: "Côte d'Ivoire" },
+    { code: "0026", name: "Ghana" },
+    { code: "0027", name: "Nigeria" },
+    { code: "0028", name: "Senegal" },
+    { code: "0029", name: "Antigua and Barbuda" },
+    { code: "0030", name: "Bahamas" },
+    { code: "0031", name: "Barbados" },
+    { code: "0032", name: "Cayman Island" },
+    { code: "0033", name: "Cuba" },
+    { code: "0034", name: "Curacao" },
+    { code: "0035", name: "Dominican Republic" },
+    { code: "0036", name: "Grand Cayman" },
+    { code: "0037", name: "Jamaica" },
+    { code: "0038", name: "Puerto Rico" },
+    { code: "0039", name: "St Martin / St Maarten" },
+    { code: "0040", name: "Trinidad and Tobago" },
+    { code: "0041", name: "Turks and Caicos Islands" },
+    { code: "0042", name: "Belize" },
+    { code: "0043", name: "Costa Rica" },
+    { code: "0044", name: "Guatemala" },
+    { code: "0045", name: "Honduras" },
+    { code: "0046", name: "Nicaragua" },
+    { code: "0047", name: "Panama" },
+    { code: "0048", name: "Canada" },
+    { code: "0049", name: "Greenland" },
+    { code: "0050", name: "Mexico" },
+    { code: "0051", name: "United States" },
+    { code: "0052", name: "Argentina" },
+    { code: "0053", name: "Bolivia" },
+    { code: "0054", name: "Brazil" },
+    { code: "0055", name: "Chile" },
+    { code: "0056", name: "Colombia" },
+    { code: "0057", name: "Ecuador" },
+    { code: "0058", name: "Peru" },
+    { code: "0059", name: "Suriname" },
+    { code: "0060", name: "Uruguay" },
+    { code: "0061", name: "Venezuela" },
+    { code: "0062", name: "Asia" },
+    { code: "0063", name: "Armenia" },
+    { code: "0064", name: "Kazakhstan" },
+    { code: "0065", name: "Kyrgyzstan" },
+    { code: "0066", name: "Mongolia" },
+    { code: "0067", name: "Turkmenistan" },
+    { code: "0068", name: "Uzbekistan" },
+    { code: "0069", name: "China" },
+    { code: "0070", name: "Hong Kong" },
+    { code: "0071", name: "Japan" },
+    { code: "0072", name: "North Korea" },
+    { code: "0073", name: "South Korea" },
+    { code: "0074", name: "Taiwan" },
+    { code: "0075", name: "Bahrain" },
+    { code: "0076", name: "Cyprus" },
+    { code: "0077", name: "Iran" },
+    { code: "0078", name: "Iraq" },
+    { code: "0079", name: "Israel" },
+    { code: "0080", name: "Jordan" },
+    { code: "0081", name: "Kuwait" },
+    { code: "0082", name: "Lebanon" },
+    { code: "0083", name: "Libya" },
+    { code: "0084", name: "Oman" },
+    { code: "0085", name: "Palestine" },
+    { code: "0086", name: "Qatar" },
+    { code: "0087", name: "Saudi Arabia" },
+    { code: "0088", name: "Turkey" },
+    { code: "0089", name: "United Arab Emirates" },
+    { code: "0090", name: "Afghanistan" },
+    { code: "0091", name: "Bangladesh" },
+    { code: "0092", name: "Bhutan" },
+    { code: "0093", name: "India" },
+    { code: "0094", name: "Maldives" },
+    { code: "0095", name: "Nepal" },
+    { code: "0096", name: "Pakistan" },
+    { code: "0097", name: "Sri Lanka" },
+    { code: "0098", name: "Brunei Darussalam" },
+    { code: "0099", name: "Cambodia" },
+    { code: "0100", name: "East Timor" },
+    { code: "0101", name: "Indonesia" },
+    { code: "0102", name: "Laos" },
+    { code: "0103", name: "Malaysia" },
+    { code: "0104", name: "Myanmar" },
+    { code: "0105", name: "Philippines" },
+    { code: "0106", name: "Singapore" },
+    { code: "0107", name: "Thailand" },
+    { code: "0108", name: "Vietnam" },
+    { code: "0109", name: "Australia" },
+    { code: "0110", name: "Fiji" },
+    { code: "0111", name: "French Polynesia" },
+    { code: "0112", name: "Mariana Islands" },
+    { code: "0113", name: "Marshall Islands" },
+    { code: "0114", name: "New Caledonia" },
+    { code: "0115", name: "New Zealand" },
+    { code: "0116", name: "Papua New Guinea" },
+    { code: "0117", name: "Solomon Islands" },
+    { code: "0118", name: "Tonga" },
+    { code: "0119", name: "Vanuatu" },
+    { code: "0120", name: "Europe" },
+    { code: "0121", name: "Austria" },
+    { code: "0122", name: "Croatia" },
+    { code: "0123", name: "Czech Republic" },
+    { code: "0124", name: "Estonia" },
+    { code: "0125", name: "Germany" },
+    { code: "0126", name: "Hungary" },
+    { code: "0127", name: "Latvia" },
+    { code: "0128", name: "Lithuania" },
+    { code: "0129", name: "Luxembourg" },
+    { code: "0130", name: "Poland" },
+    { code: "0131", name: "Romania" },
+    { code: "0132", name: "Serbia" },
+    { code: "0133", name: "Slovakia" },
+    { code: "0134", name: "Slovenia" },
+    { code: "0135", name: "Switzerland" },
+    { code: "0136", name: "Azerbaijan" },
+    { code: "0137", name: "Belarus" },
+    { code: "0138", name: "Georgia" },
+    { code: "0139", name: "Russia" },
+    { code: "0140", name: "Ukraine" },
+    { code: "0141", name: "Denmark" },
+    { code: "0142", name: "Finland" },
+    { code: "0143", name: "Iceland" },
+    { code: "0144", name: "Norway" },
+    { code: "0145", name: "Sweden" },
+    { code: "0146", name: "Albania" },
+    { code: "0147", name: "Bosnia and Herzegovina" },
+    { code: "0148", name: "Bulgaria" },
+    { code: "0149", name: "Cyprus" },
+    { code: "0150", name: "Greece" },
+    { code: "0151", name: "Italy" },
+    { code: "0152", name: "Malta" },
+    { code: "0153", name: "Moldova" },
+    { code: "0154", name: "Montenegro" },
+    { code: "0155", name: "Portugal" },
+    { code: "0156", name: "Republic of North Macedonia" },
+    { code: "0157", name: "Spain" },
+    { code: "0158", name: "Belgium" },
+    { code: "0159", name: "France" },
+    { code: "0160", name: "Ireland" },
+    { code: "0161", name: "Monaco" },
+    { code: "0162", name: "Netherlands" },
+    { code: "0163", name: "United Kingdom" },
+    { code: "0164", name: "Yemen" }
+];
+
+
+    const attractionTypes = [
+        { code: "Nature & Wildlife", name: "Nature & Wildlife" },
+        { code: "Leisure & Entertainment", name: "Leisure & Entertainment" },
+        { code: "Historical & Cultural", name: "Historical & Cultural" },
+        { code: "Cultural & Local Exploration", name: "Cultural & Local Exploration" }
+    ];
+
+    // Populate country dropdowns
+    countries.forEach(country => {
+        const option = new Option(country.name, country.name, false, false);
+        $('.country-dropdown').append(option);
+    });
+
+    $('.country-dropdown').select2({ placeholder: "--Select Country--" });
+
+    // Populate months for Dashboard 1
+    const monthDropdown1 = document.getElementById('month1');
+    for (let i = 1; i <= 12; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+        monthDropdown1.appendChild(option);
+    }
+
+    // Populate attraction types for Dashboard 3
+    const attractionTypeDropdown3 = document.getElementById('attractionType3');
+    attractionTypes.forEach(type => {
+        const option = new Option(type.name, type.code);
+        attractionTypeDropdown3.add(option);
+    });
+});
+
+// Function to reset the form on Dashboard 1
+function resetForm() {
+    const attractionTypeDropdown = document.getElementById('attractionType1');
+    const button = document.getElementById('getButton1');
+    attractionTypeDropdown.innerHTML = '<option value="">--Select Type--</option>';
+    attractionTypeDropdown.disabled = true;
+    button.textContent = "Get Attraction Types";
+}
+
+// Function to reset the form on Dashboard 3
+function resetFormDashboard3() {
+    const attractionPlaceDropdown = document.getElementById('attractionPlace3');
+    const button = document.getElementById('getButton3');
+    attractionPlaceDropdown.innerHTML = '<option value="">--Select Place--</option>';
+    attractionPlaceDropdown.disabled = true;
+    button.textContent = "Get Attraction Places";
+}
+
+document.getElementById('visitMode1').addEventListener('change', resetForm);
+$('#country1').on('change', resetForm);
+document.getElementById('visitMode3').addEventListener('change', resetFormDashboard3);
+$('#country3').on('change', resetFormDashboard3);
+
+// Function to fetch attraction places for Dashboard 1
+async function getAttractionPlaces(country, visit_mode, visit_month, attraction_type) {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/predict_attraction_place', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ country, visit_mode, visit_month, attraction_type })
+        });
+
+        const result = await response.json();
+        if (response.ok && result.predicted_attraction_places) {
+            alert("Top Places: " + result.predicted_attraction_places.join(", "));
+        } else {
+            alert(result.error || 'Unexpected error occurred.');
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        alert('An error occurred. Check the console for details.');
+    }
+}
+
+// Handle Dashboard 1 button click
+async function handleDashboard1Click() {
+    const country = $('#country1').val();
+    const visit_mode = $('#visitMode1').val();
+    const visit_month = parseInt($('#month1').val());
+    const button = document.getElementById('getButton1');
+    const attractionTypeDropdown = document.getElementById('attractionType1');
+
+    if (button.textContent === "Get Attraction Places") {
+        const selectedAttractionType = attractionTypeDropdown.value;
+        if (!selectedAttractionType) {
+            alert("Please select an attraction type.");
+            return;
+        }
+        await getAttractionPlaces(country, visit_mode, visit_month, selectedAttractionType);
+        return;
+    }
+
+    if (!country || !visit_mode || !visit_month) {
+        alert("Please select all required fields.");
+        return;
+    }
+
+    const response = await fetch('http://127.0.0.1:5000/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country, visit_mode, visit_month })
+    });
+
+    const result = await response.json();
+    if (response.ok && result.predicted_attraction_types) {
+        attractionTypeDropdown.disabled = false;
+        attractionTypeDropdown.innerHTML = '<option value="">--Select Type--</option>';
+        result.predicted_attraction_types.forEach(type => {
+            const option = new Option(type, type);
+            attractionTypeDropdown.add(option);
+        });
+        button.textContent = "Get Attraction Places";
+    }
+}
+
+// Handle Dashboard 3 button click
+async function handleDashboard3Click() {
+    const country = $('#country3').val();
+    const visit_mode = $('#visitMode3').val();
+    const attraction_type = $('#attractionType3').val();
+    const button = document.getElementById('getButton3');
+    const attractionPlaceDropdown = document.getElementById('attractionPlace3');
+
+    if (button.textContent === "Get Best Months") {
+        const selectedAttractionPlace = attractionPlaceDropdown.value;
+        if (!selectedAttractionPlace) {
+            alert("Please select an attraction place.");
+            return;
+        }
+        await getBestMonths(country, visit_mode, attraction_type, selectedAttractionPlace);
+        return;
+    }
+
+    const response = await fetch('http://127.0.0.1:5000/predict_attraction_place3', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country, visit_mode, attraction_type })
+    });
+
+    const result = await response.json();
+    if (response.ok && result.predicted_attraction_places2) {
+        attractionPlaceDropdown.disabled = false;
+        attractionPlaceDropdown.innerHTML = '<option value="">--Select Place--</option>';
+        result.predicted_attraction_places2.forEach(place => {
+            const option = new Option(place, place);
+            attractionPlaceDropdown.add(option);
+        });
+        button.textContent = "Get Best Months";
+    }
+}
+
+async function getBestMonths(country, visit_mode, attraction_type, attraction_place) {
+    const response = await fetch('http://127.0.0.1:5000/predict_best_months', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ country, visit_mode, attraction_type, attraction_place })
+    });
+
+    const result = await response.json();
+    if (response.ok && result.best_months) {
+        alert("Best Months: " + result.best_months.join(", "));
+    }
+}
+
+    </script>
+    
+    
+</body>
+</html>
